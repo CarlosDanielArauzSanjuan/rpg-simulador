@@ -4,6 +4,8 @@ const Guerrero = require('./models/Guerrero');
 const Mago = require('./models/Mago');
 const Arquero = require('./models/Arquero');
 const BatallaService = require('./services/BatallaService');
+const crearObjetosBasicos = require('./utils/crearObjetos');
+
 
 console.clear();
 console.log(chalk.blueBright.bold('🧙‍♂️ Bienvenido al Simulador de Batallas RPG 🗡️ \n'));
@@ -21,12 +23,15 @@ const mostrarMenu = async () => {
       choices: [
        'Crear personaje',
        'Ver personajes',
-       'Iniciar batalla', 
+       'Iniciar batalla',
+       'Ver inventario de un personaje',
        'Salir',
       ],
     },
   ]);
 
+  
+// Manejar la opción seleccionada
   switch (opcion) {
     case 'Crear personaje':
       await crearPersonaje();
@@ -34,7 +39,9 @@ const mostrarMenu = async () => {
     case 'Ver personajes':
       mostrarPersonajes();
       break;
-      
+    case 'Ver inventario de un personaje':
+      await verInventarioDePersonaje();
+      break;
     case 'Iniciar batalla':
       await iniciarBatalla(); 
       break;
@@ -46,6 +53,8 @@ const mostrarMenu = async () => {
 
   await mostrarMenu(); // repetir el menú
 };
+
+
 // ------------------ FUNCION CREAR PERSONAJE ------------------
 const crearPersonaje = async () => {
   const { nombre, clase } = await inquirer.prompt([
@@ -80,6 +89,7 @@ const crearPersonaje = async () => {
   personajes.push(personaje);
   console.log(chalk.green(`✅ ${clase} "${nombre}" creado exitosamente.\n`));
 };
+
 
 
 // ------------------ FUNCION MOSTRAR PERSONAJES  ------------------
@@ -135,6 +145,45 @@ const iniciarBatalla = async () => {
   await batalla.iniciar();
 };
 
+// ------------------ CREAR OBJETOS BASICOS ------------------
+  const objetos = crearObjetosBasicos();
+  objetos.forEach(obj => personaje.agregarObjeto(obj));
+
+
+
+// ------------------ FUNCION VER INVENTARIO ------------------
+
+const verInventarioDePersonaje = async () => {
+  if (personajes.length === 0) {
+    console.log(chalk.yellow('⚠️ No hay personajes disponibles.\n'));
+    return;
+  }
+
+  const { personajeId } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'personajeId',
+      message: 'Selecciona un personaje:',
+      choices: personajes.map(p => ({ name: `${p.nombre} (${p.clase})`, value: p.id })),
+    },
+  ]);
+
+  const personaje = personajes.find(p => p.id === personajeId);
+
+  if (personaje.inventario.length === 0) {
+    console.log(chalk.yellow('📦 Este personaje no tiene objetos.\n'));
+    return;
+  }
+
+  console.log(chalk.cyan(`\n🎒 Inventario de ${personaje.nombre}:\n`));
+  personaje.inventario.forEach((obj, i) => {
+    console.log(`${i + 1}. ${obj.nombre} (${obj.tipo})`);
+  });
+  console.log('');
+};
+
+
+// ------------------ INICIAR EL PROGRAMA ------------------
 
 // Iniciar el programa
 mostrarMenu();
