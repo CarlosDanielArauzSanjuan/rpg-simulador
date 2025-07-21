@@ -42,7 +42,8 @@ class Personaje {
   }
 }
 
-// module.exports = Personaje;
+module.exports = Personaje;
+
 // console.clear();
 // console.log('Bienvenido al Simulador de Batallas RPG');
 // const Personaje = require('./models/personajes');
