@@ -21,11 +21,12 @@ const mostrarMenu = async () => {
       name: 'opcion',
       message: '¿Qué deseas hacer?',
       choices: [
-       'Crear personaje',
-       'Ver personajes',
-       'Iniciar batalla',
-       'Ver inventario de un personaje',
-       'Salir',
+      'Crear personaje',
+      'Ver personajes',
+      'Ver inventario de un personaje',
+      'Iniciar batalla',
+      'Luchar contra enemigo IA',
+      'Salir'
       ],
     },
   ]);
@@ -44,6 +45,9 @@ const mostrarMenu = async () => {
       break;
     case 'Iniciar batalla':
       await iniciarBatalla(); 
+      break;
+    case 'Luchar contra enemigo IA':
+      await lucharContraIA();
       break;
     case 'Salir':
 
@@ -182,6 +186,33 @@ const verInventarioDePersonaje = async () => {
   console.log('');
 };
 
+// ------------------ FUNCION LUCHAR CONTRA ENEMIGO IA ------------------
+const generarEnemigo = require('./utils/generarEnemigo');
+const BatallaService = require('./services/BatallaService');
+
+const lucharContraIA = async () => {
+  if (personajes.length === 0) {
+    console.log(chalk.yellow('⚠️ Crea al menos un personaje antes de luchar.\n'));
+    return;
+  }
+
+  const { personajeId } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'personajeId',
+      message: 'Selecciona tu personaje para la batalla:',
+      choices: personajes.map(p => ({ name: `${p.nombre} (${p.clase})`, value: p.id })),
+    },
+  ]);
+
+  const jugador = personajes.find(p => p.id === personajeId);
+  const enemigo = generarEnemigo();
+
+  console.log(chalk.red(`\n😈 Aparece un enemigo: ${enemigo.nombre} (${enemigo.clase})\n`));
+
+  const batalla = new BatallaService(jugador, enemigo, true); 
+  await batalla.iniciar();
+};
 
 // ------------------ INICIAR EL PROGRAMA ------------------
 
