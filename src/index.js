@@ -1,15 +1,17 @@
 const inquirer = require('inquirer');
 const chalk = require('chalk');
-chalk.blueBright.bold('...');
 const Guerrero = require('./models/Guerrero');
 const Mago = require('./models/Mago');
 const Arquero = require('./models/Arquero');
+const BatallaService = require('./services/BatallaService');
 
 console.clear();
 console.log(chalk.blueBright.bold('🧙‍♂️ Bienvenido al Simulador de Batallas RPG 🗡️ \n'));
 
 const personajes = [];
 
+
+// ------------------ FUNCION MENU PRINCIPAL ------------------
 const mostrarMenu = async () => {
   const { opcion } = await inquirer.prompt([
     {
@@ -17,9 +19,10 @@ const mostrarMenu = async () => {
       name: 'opcion',
       message: '¿Qué deseas hacer?',
       choices: [
-        'Crear personaje',
-        'Ver personajes',
-        'Salir',
+       'Crear personaje',
+       'Ver personajes',
+       'Iniciar batalla', 
+       'Salir',
       ],
     },
   ]);
@@ -31,14 +34,19 @@ const mostrarMenu = async () => {
     case 'Ver personajes':
       mostrarPersonajes();
       break;
+      
+    case 'Iniciar batalla':
+      await iniciarBatalla(); 
+      break;
     case 'Salir':
+
       console.log(chalk.green('👋 ¡Hasta la próxima!'));
       process.exit();
   }
 
   await mostrarMenu(); // repetir el menú
 };
-
+// ------------------ FUNCION CREAR PERSONAJE ------------------
 const crearPersonaje = async () => {
   const { nombre, clase } = await inquirer.prompt([
     {
@@ -73,6 +81,8 @@ const crearPersonaje = async () => {
   console.log(chalk.green(`✅ ${clase} "${nombre}" creado exitosamente.\n`));
 };
 
+
+// ------------------ FUNCION MOSTRAR PERSONAJES  ------------------
 const mostrarPersonajes = () => {
   if (personajes.length === 0) {
     console.log(chalk.yellow('⚠️ No hay personajes creados aún.\n'));
@@ -86,6 +96,45 @@ const mostrarPersonajes = () => {
   });
   console.log('');
 };
+
+
+// ------------------ FUNCION INICIAR BATALLA ------------------
+
+const BatallaService = require('./services/BatallaService');
+
+const iniciarBatalla = async () => {
+  if (personajes.length < 2) {
+    console.log(chalk.red('❌ Se necesitan al menos 2 personajes para una batalla.\n'));
+    return;
+  }
+
+  const { jugador1Id, jugador2Id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'jugador1Id',
+      message: 'Selecciona el primer personaje:',
+      choices: personajes.map(p => ({ name: `${p.nombre} (${p.clase})`, value: p.id })),
+    },
+    {
+      type: 'list',
+      name: 'jugador2Id',
+      message: 'Selecciona el segundo personaje:',
+      choices: personajes.map(p => ({ name: `${p.nombre} (${p.clase})`, value: p.id })),
+    },
+  ]);
+
+  if (jugador1Id === jugador2Id) {
+    console.log(chalk.red('❌ No puedes seleccionar el mismo personaje dos veces.\n'));
+    return;
+  }
+
+  const jugador1 = personajes.find(p => p.id === jugador1Id);
+  const jugador2 = personajes.find(p => p.id === jugador2Id);
+
+  const batalla = new BatallaService(jugador1, jugador2);
+  await batalla.iniciar();
+};
+
 
 // Iniciar el programa
 mostrarMenu();
