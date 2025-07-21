@@ -1,3 +1,4 @@
-node_modules
+# .gitignore for RPG Simulator Project
+node_modules/
 *.log
-data/*.json
+src/data/*.json
