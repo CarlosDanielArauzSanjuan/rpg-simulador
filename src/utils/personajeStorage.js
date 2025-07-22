@@ -1,12 +1,16 @@
 const fs = require('fs');
 const path = require('path');
+const Objeto = require('../models/Objeto'); // Clase Objeto
+const efectos = require('./efectosPorNombre'); // Mapeo de nombre → función efecto
 
-// 🗂️ Ruta del archivo donde se guardarán los personajes
+// 🗂️ Ruta al archivo JSON donde se guardan los personajes
 const rutaArchivo = path.join(__dirname, '../data/personajes.json');
 
-// ✅ FUNCIÓN PARA GUARDAR PERSONAJES EN EL ARCHIVO
+/**
+ * Guarda la lista de personajes como JSON plano en el sistema de archivos.
+ * @param {Personaje[]} personajes 
+ */
 function guardarPersonajes(personajes) {
-  // Convertimos los personajes en un formato simple (JSON plano)
   const data = personajes.map(p => {
     const estado = p.estado;
     return {
@@ -17,27 +21,33 @@ function guardarPersonajes(personajes) {
       experiencia: estado.experiencia,
       nivel: estado.nivel,
       vida: estado.vida,
-      inventario: p.inventario || [],
+      mana: estado.mana,
+      reduccionDanio: p.reduccionDanio || 0, // ✅ Guardar efecto pasivo si aplica
+      inventario: p.inventario.map(obj => ({
+        id: obj.id,
+        nombre: obj.nombre,
+        tipo: obj.tipo,
+        descripcion: obj.descripcion
+        // El efecto se vuelve a mapear al cargar
+      })),
     };
   });
 
-  // Escribimos el JSON al archivo con formato bonito
   fs.writeFileSync(rutaArchivo, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-// ✅ FUNCIÓN PARA CARGAR PERSONAJES DESDE EL ARCHIVO
+/**
+ * Carga los personajes desde el archivo y los reconstruye con sus clases y objetos.
+ * @param {Object} ClasesDisponibles - Mapeo de clases por nombre: { Guerrero, Mago, ... }
+ * @returns {Personaje[]}
+ */
 function cargarPersonajes(ClasesDisponibles) {
-  // Si el archivo no existe, devolvemos una lista vacía
   if (!fs.existsSync(rutaArchivo)) return [];
 
-  // Leemos el contenido del archivo como texto
   const raw = fs.readFileSync(rutaArchivo, 'utf-8');
   const datos = JSON.parse(raw);
-
-  // ✅ Verificamos si es un array o un objeto con propiedad `personajes`
   const personajesRaw = Array.isArray(datos) ? datos : datos.personajes || [];
 
-  // Creamos instancias de las clases originales (Guerrero, Mago, Arquero)
   return personajesRaw.map(p => {
     const Clase = ClasesDisponibles[p.clase];
     const personaje = new Clase(p.nombre);
@@ -45,17 +55,24 @@ function cargarPersonajes(ClasesDisponibles) {
     personaje.id = p.id;
     personaje.fuerza = p.fuerza;
     personaje.experiencia = p.experiencia;
-    personaje.inventario = p.inventario || [];
 
-    // Usamos setters si están definidos
     if (typeof personaje.setVida === 'function') personaje.setVida(p.vida);
     if (typeof personaje.setNivel === 'function') personaje.setNivel(p.nivel);
+    if (typeof personaje.setMana === 'function') personaje.setMana(p.mana);
+
+    // ✅ Restaurar reducción de daño si fue aplicada anteriormente
+    personaje.reduccionDanio = p.reduccionDanio || 0;
+
+    // ✅ Restaurar objetos desde JSON como instancias de Objeto con sus efectos
+    personaje.inventario = (p.inventario || []).map(o => {
+      const efecto = efectos[o.nombre] || (() => {});
+      return new Objeto(o.nombre, o.tipo, efecto, o.descripcion);
+    });
 
     return personaje;
   });
 }
 
-// 📤 Exportamos las funciones para usarlas en index.js u otros archivos
 module.exports = {
   guardarPersonajes,
   cargarPersonajes,

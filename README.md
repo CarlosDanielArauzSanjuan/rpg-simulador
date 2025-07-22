@@ -18,13 +18,13 @@ Simulador de batallas por turnos entre personajes de fantasía, implementado en 
 
 ## 🛠️ Tecnologías usadas
 
-| Tecnología | Uso |
-|------------|-----|
-| `Node.js` | Entorno de ejecución |
-| `inquirer` | Menús y prompts interactivos |
-| `chalk` | Colores y formato en consola |
-| `uuid` | IDs únicos para personajes y objetos |
-| `fs` | Lectura y escritura en archivos JSON |
+| Tecnología |					 Uso 				                |
+|------------|--------------------------------------|
+| `Node.js`  | Entorno de ejecución 				        |
+| `inquirer` | Menús y prompts interactivos		      |
+| `chalk`    | Colores y formato en consola 		    |
+| `uuid`     | IDs únicos para personajes y objetos |
+| `fs`       | Lectura y escritura en archivos JSON |
 
 ---
 
@@ -63,25 +63,25 @@ Los objetos modifican atributos del personaje al obtenerlos o usarlos.
 Cada clase recibe objetos únicos:
 
 ### 🧙‍♂️ Mago
-| Objeto | Tipo | Efecto |
-|--------|------|--------|
-| Báculo Arcano | arma | +5 fuerza |
-| Poción de Maná | poción | +20 vida |
-| Túnica Mágica | armadura | Reduce daño recibido un 15% |
+| Objeto 		    | Tipo 		  | Efecto 					            |
+|---------------|-----------|-----------------------------|
+| Báculo Arcano | arma 	    | +5 fuerza 				          |
+| Poción de Maná| poción 	  | +20 vida 					          |
+| Túnica Mágica | armadura  | Reduce daño recibido un 15% |
 
 ### 🛡️ Guerrero
-| Objeto | Tipo | Efecto |
-|--------|------|--------|
-| Espada de Hierro | arma | +10 fuerza |
-| Poción de Vida | poción | +30 vida |
-| Armadura Pesada | armadura | Reduce daño recibido un 30% |
+| Objeto 		       | Tipo 	  | Efecto 						          |
+|------------------|----------|-----------------------------|
+| Espada de Hierro | arma 	  | +10 fuerza			            |
+| Poción de Vida   | poción   | +30 vida 					          |
+| Armadura Pesada  | armadura | Reduce daño recibido un 30% |
 
 ### 🏹 Arquero
-| Objeto | Tipo | Efecto |
-|--------|------|--------|
-| Arco Largo | arma | +7 fuerza |
-| Poción de Agilidad | poción | +15 vida |
-| Botas Ligeras | armadura | Reduce daño recibido un 10% |
+| Objeto 			      | Tipo 	   | Efecto 					          |
+|-------------------|----------|----------------------------|
+| Arco Largo 		    | arma     | +7 fuerza 					        |
+| Poción de Agilidad| poción.  | +15 vida 					        |
+| Botas Ligeras 	  | armadura | Reduce daño recibido un 10%|
 
 ---
 
@@ -95,11 +95,27 @@ Cada clase recibe objetos únicos:
 
 ## 🧬 Clases de Personaje
 
-| Clase | Vida | Fuerza | Habilidad Especial |
-|-------|------|--------|---------------------|
-| Guerrero | 120 | 15 | Ataque Furioso (x2 daño) |
-| Mago | 80 | 8 | Bola de Fuego (x3 daño) |
-| Arquero | 100 | 12 | Flecha Precisa (x1.5 daño) |
+| Clase    | Vida | Fuerza | Habilidad Especial       |
+|-------   |------|--------|---------------------     |
+| Guerrero | 120  | 15     | Ataque Furioso (x2 daño) |
+| Mago     | 80   | 8      | Bola de Fuego (x3 daño)  |
+| Arquero  | 100  | 12     |Flecha Precisa (x1.5 daño)|
+
+---
+
+## ✨ Habilidades Especiales y Maná
+
+Cada personaje posee una **habilidad especial única**, la cual consume maná. Si no se tiene suficiente maná, el personaje no podrá ejecutarla.
+
+| Clase       | Habilidad Especial     | Efecto                                         | Costo de Maná  |
+|-----------  |------------------------|------------------------------------------------|----------------|
+| 🗡️ Guerrero | Ataque Furioso         | Doble daño físico al enemigo                   | 15             |
+| 🧙‍♂️ Mago     | Bola de Fuego          | Inflige daño mágico x3                         | 20             |
+| 🏹 Arquero  | Flecha Precisa         | Daño aumentado con bonificación por precisión  | 10             |
+
+🔋 Todos los personajes inician con una cantidad de maná base (Guerrero: 30, Mago: 60, Arquero: 40).
+
+⚠️ Si el personaje no tiene suficiente maná, se notificará y perderá el turno si intentó usar la habilidad.
 
 ---
 
@@ -122,20 +138,20 @@ Cada clase recibe objetos únicos:
 
 ## 📁 Estructura del Proyecto
 
-![Estructura del proyecto RPG](../Estructura.png)
+![Estructura del proyecto RPG](Estructura.png)
 
 
 ---
 
 ## 🧠 Principios SOLID aplicados
 
-| Principio | Aplicación |
-|-----------|------------|
-| SRP (Responsabilidad Única) | Cada clase tiene una sola responsabilidad: combate, personaje, almacenamiento, etc. |
-| OCP (Abierto/Cerrado) | Nuevas clases u objetos se agregan sin modificar lo existente |
-| LSP (Sustitución de Liskov) | Guerrero/Mago/Arquero se usan igual que su padre `Personaje` |
-| ISP (Segregación de interfaces) | Cada clase sólo implementa lo que necesita |
-| DIP (Inversión de dependencias) | Las dependencias se abstraen (por ejemplo, `BatallaService` depende de personajes, no de clases específicas) |
+| Principio                       | Aplicación                                                                                                  |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------|
+| SRP (Responsabilidad Única)     | Cada clase tiene una sola responsabilidad: combate, personaje, almacenamiento, etc.                         |
+| OCP (Abierto/Cerrado)           | Nuevas clases u objetos se agregan sin modificar lo existente                                               |
+| LSP (Sustitución de Liskov)     | Guerrero/Mago/Arquero se usan igual que su padre `Personaje`                                                | 
+| ISP (Segregación de interfaces) | Cada clase sólo implementa lo que necesita                                                         			    | 
+| DIP (Inversión de dependencias) | Las dependencias se abstraen (por ejemplo, `BatallaService` depende de personajes, no de clases específicas)|
 
 ---
 

@@ -11,7 +11,7 @@ const BatallaService = require('./services/BatallaService');
 const generarEnemigo = require('./utils/generarEnemigo');
 
 // Utilidades
-const crearObjetosBasicos = require('./utils/crearObjetos');
+const crearObjetosBasicos = require('./utils/crearObjetosBasicos');
 const { guardarPersonajes, cargarPersonajes } = require('./utils/PersonajeStorage');
 const { initDB } = require('./data/db');
 

@@ -2,18 +2,17 @@ const Personaje = require('./Personaje');
 
 class Mago extends Personaje {
   constructor(nombre) {
-    super(nombre, 'Mago', 80, 8);
-    this.mana = 100;
+    super(nombre, 'Mago', 80, 12, 100); // vida baja, fuerza media, mucho maná
   }
 
   habilidadEspecial(objetivo) {
-    if (this.mana >= 30) {
-      console.log(`${this.nombre} lanza Bola de Fuego sobre ${objetivo.nombre}`);
-      objetivo.recibirDaño(this.fuerza * 3);
-      this.mana -= 30;
-    } else {
-      console.log(`${this.nombre} no tiene suficiente mana.`);
+    const costo = 20;
+    if (!this.gastarMana(costo)) {
+      console.log(`${this.nombre} no puede lanzar Bola de Fuego (maná insuficiente).`);
+      return;
     }
+    console.log(`${this.nombre} lanza Bola de Fuego sobre ${objetivo.nombre}`);
+    objetivo.recibirDaño(this.fuerza * 2);
   }
 }
 
