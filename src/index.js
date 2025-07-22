@@ -1,3 +1,4 @@
+const { guardarPersonajes, cargarPersonajes } = require('./utils/PersonajeStorage');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const Guerrero = require('./models/Guerrero');
@@ -8,9 +9,20 @@ const crearObjetosBasicos = require('./utils/crearObjetos');
 
 
 console.clear();
+const Guerrero = require('./models/Guerrero');
+const Mago = require('./models/Mago');
+const Arquero = require('./models/Arquero');
+
+const ClasesDisponibles = {
+  Guerrero,
+  Mago,
+  Arquero,
+};
+
+let personajes = cargarPersonajes(ClasesDisponibles);
+
 console.log(chalk.blueBright.bold('🧙‍♂️ Bienvenido al Simulador de Batallas RPG 🗡️ \n'));
 
-const personajes = [];
 
 
 // ------------------ FUNCION MENU PRINCIPAL ------------------
