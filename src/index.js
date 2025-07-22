@@ -1,25 +1,28 @@
-const { guardarPersonajes, cargarPersonajes } = require('./utils/PersonajeStorage');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
+
+// Clases de personajes
 const Guerrero = require('./models/Guerrero');
 const Mago = require('./models/Mago');
 const Arquero = require('./models/Arquero');
+
+// Lógica de batalla
 const BatallaService = require('./services/BatallaService');
+const generarEnemigo = require('./utils/generarEnemigo');
+
+// Utilidades
 const crearObjetosBasicos = require('./utils/crearObjetos');
+const { guardarPersonajes, cargarPersonajes } = require('./utils/PersonajeStorage');
+const { initDB } = require('./data/db');
 
-
-console.clear();
-const Guerrero = require('./models/Guerrero');
-const Mago = require('./models/Mago');
-const Arquero = require('./models/Arquero');
-
+// Clases disponibles para crear personajes
 const ClasesDisponibles = {
   Guerrero,
   Mago,
   Arquero,
 };
 
-let personajes = cargarPersonajes(ClasesDisponibles);
+let personajes = [];
 
 console.log(chalk.blueBright.bold('🧙‍♂️ Bienvenido al Simulador de Batallas RPG 🗡️ \n'));
 
@@ -102,11 +105,14 @@ const crearPersonaje = async () => {
       break;
   }
 
+  // ✅ Generar objetos correctos para la clase
+  const objetos = crearObjetosBasicos(clase);
+  objetos.forEach(obj => personaje.agregarObjeto(obj));
+
   personajes.push(personaje);
+  await guardarPersonajes(personajes);
   console.log(chalk.green(`✅ ${clase} "${nombre}" creado exitosamente.\n`));
 };
-
-
 
 // ------------------ FUNCION MOSTRAR PERSONAJES  ------------------
 const mostrarPersonajes = () => {
@@ -125,8 +131,6 @@ const mostrarPersonajes = () => {
 
 
 // ------------------ FUNCION INICIAR BATALLA ------------------
-
-const BatallaService = require('./services/BatallaService');
 
 const iniciarBatalla = async () => {
   if (personajes.length < 2) {
@@ -161,10 +165,6 @@ const iniciarBatalla = async () => {
   await batalla.iniciar();
 };
 
-// ------------------ CREAR OBJETOS BASICOS ------------------
-  const objetos = crearObjetosBasicos();
-  objetos.forEach(obj => personaje.agregarObjeto(obj));
-
 
 
 // ------------------ FUNCION VER INVENTARIO ------------------
@@ -193,14 +193,11 @@ const verInventarioDePersonaje = async () => {
 
   console.log(chalk.cyan(`\n🎒 Inventario de ${personaje.nombre}:\n`));
   personaje.inventario.forEach((obj, i) => {
-    console.log(`${i + 1}. ${obj.nombre} (${obj.tipo})`);
-  });
+  console.log(`${i + 1}. ${obj.nombre} (${obj.tipo}) - ${obj.descripcion}`);  });
   console.log('');
 };
 
 // ------------------ FUNCION LUCHAR CONTRA ENEMIGO IA ------------------
-const generarEnemigo = require('./utils/generarEnemigo');
-const BatallaService = require('./services/BatallaService');
 
 const lucharContraIA = async () => {
   if (personajes.length === 0) {
@@ -218,18 +215,24 @@ const lucharContraIA = async () => {
   ]);
 
   const jugador = personajes.find(p => p.id === personajeId);
-  const enemigo = generarEnemigo();
+
+  const enemigo = generarEnemigo(); // ✅ esta línea es clave
 
   console.log(chalk.red(`\n😈 Aparece un enemigo: ${enemigo.nombre} (${enemigo.clase})\n`));
 
-  const batalla = new BatallaService(jugador, enemigo, true); 
+  const batalla = new BatallaService(jugador, enemigo, true);
   await batalla.iniciar();
 };
 
 // ------------------ INICIAR EL PROGRAMA ------------------
 
-// Iniciar el programa
-mostrarMenu();
+const main = async () => {
+  await initDB();
+  personajes = await cargarPersonajes(ClasesDisponibles);
+  await mostrarMenu();
+};
+
+main();
 
 
 // EJECUTAR LA APP 
